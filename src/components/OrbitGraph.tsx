@@ -6,22 +6,22 @@ import { motion } from "framer-motion";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
 
 const NODE_COLORS: Record<string, string> = {
-  project: "#ffffff",
-  person: "#b0b0b0",
-  decision: "#808080",
-  Project: "#ffffff",
-  Person: "#b0b0b0",
-  Decision: "#808080",
+  project: "#1a1a1a",
+  person: "#555555",
+  decision: "#888888",
+  Project: "#1a1a1a",
+  Person: "#555555",
+  Decision: "#888888",
 };
 
 const GROUP_COLORS: Record<string, string> = {
-  engineering: "#ffffff",
-  marketing: "#b0b0b0",
-  product: "#d0d0d0",
-  leadership: "#808080",
-  design: "#e0e0e0",
-  sales: "#a0a0a0",
-  extracted: "#ffffff",
+  engineering: "#1a1a1a",
+  marketing: "#555555",
+  product: "#333333",
+  leadership: "#888888",
+  design: "#444444",
+  sales: "#666666",
+  extracted: "#1a1a1a",
 };
 
 export function OrbitGraph() {
@@ -209,7 +209,7 @@ export function OrbitGraph() {
         nodeRelSize={6}
         linkDirectionalParticles={2}
         linkDirectionalParticleWidth={1.5}
-        linkDirectionalParticleColor={() => "#ffffff40"}
+        linkDirectionalParticleColor={() => "#1a1a1a40"}
         backgroundColor="rgba(0,0,0,0)"
         onNodeHover={handleNodeHover}
         d3AlphaDecay={0.02}
