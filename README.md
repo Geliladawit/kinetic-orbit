@@ -19,7 +19,7 @@ A sophisticated knowledge management and organizational intelligence system that
 ### 📥 Inbox Upload System
 - Drag-and-drop text file upload
 - Direct text paste functionality
-- AI-powered knowledge extraction using OpenAI
+- AI-powered knowledge extraction using GROQ AI
 - Real-time processing with visual feedback
 
 ### 🔔 Live Pulse Feed
@@ -34,7 +34,8 @@ A sophisticated knowledge management and organizational intelligence system that
 - **State Management**: React Query + Context API
 - **Animations**: Framer Motion
 - **Graph Visualization**: react-force-graph-2d
-- **AI Processing**: OpenAI API integration
+- **AI Processing**: GROQ AI integration with OpenAI-compatible API
+- **Backend**: Node.js + Express server for data processing
 - **Testing**: Vitest + Testing Library
 - **Linting**: ESLint + TypeScript ESLint
 
@@ -57,22 +58,34 @@ cd kinetic-orbit
 npm install
 ```
 
-3. Start the development server:
+3. Start the development servers (in separate terminals):
 ```bash
+# Terminal 1: Start backend server
+npm run server
+
+# Terminal 2: Start frontend dev server
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+Or start both simultaneously:
+```bash
+npm run dev:full
+```
+
+4. Open your browser and navigate to `http://localhost:5173` (frontend) or `http://localhost:3001` (backend API)
 
 ## 🔧 Configuration
 
-### OpenAI API Setup
+### GROQ AI Setup
 
-To enable AI-powered knowledge extraction, you'll need to configure your OpenAI API key:
+To enable AI-powered knowledge extraction, you'll need to configure your GROQ API key:
 
-1. Obtain an API key from [OpenAI](https://platform.openai.com/)
-2. The application will prompt you to enter the API key when you first try to process text
-3. The key is stored locally for future use
+1. Obtain an API key from [GROQ](https://groq.com/)
+2. Copy `.env.example` to `.env` and add your API key:
+```bash
+GROQ_API_KEY=your_groq_api_key_here
+```
+3. The application will use the configured API key for AI processing
 
 ## 📁 Project Structure
 
@@ -95,7 +108,7 @@ src/
 │   └── InboxUpload.tsx # Text processing
 ├── services/          # Business logic
 │   ├── knowledgeStore.ts # Data persistence
-│   ├── openaiExtractor.ts # AI processing
+│   ├── groqExtractor.ts # AI processing
 │   └── auditor.ts     # Decision auditing
 └── types/             # TypeScript type definitions
 ```
