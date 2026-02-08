@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Orbit, BookOpen, Upload, Hexagon } from "lucide-react";
+import { SettingsDrawer } from "@/components/SettingsDrawer";
 
 const navItems = [
   { to: "/", label: "The Orbit", icon: Orbit },
@@ -61,8 +62,9 @@ export function AppHeader() {
         ))}
       </nav>
 
-      {/* Status indicator */}
-      <div className="flex items-center gap-2">
+      {/* Settings + Status */}
+      <div className="flex items-center gap-3">
+        <SettingsDrawer />
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
           <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
           <span>LIVE</span>
