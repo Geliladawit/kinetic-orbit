@@ -47,21 +47,12 @@ export function KnowledgeProvider({ children }: { children: React.ReactNode }) {
 
   const processText = useCallback(
     async (text: string) => {
-      if (!apiKey) {
-        toast({
-          title: "API Key Required",
-          description: "Please set your OpenAI API key in Settings first.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       setIsProcessing(true);
 
       try {
-        // STEP 1: THE EXTRACTOR — Call OpenAI
-        toast({ title: "🧠 Extractor Active", description: "Analyzing text with GPT-4o..." });
-        const extraction = await extractKnowledge(text, apiKey);
+        // STEP 1: THE EXTRACTOR — Call backend API
+        toast({ title: "🧠 Extractor Active", description: "Analyzing text with AI..." });
+        const extraction = await extractKnowledge(text);
 
         // Convert extracted nodes to KnowledgeNodes
         const now = Date.now();
@@ -144,14 +135,14 @@ export function KnowledgeProvider({ children }: { children: React.ReactNode }) {
         console.error("Extraction failed:", error);
         toast({
           title: "Extraction Failed",
-          description: error.message || "Could not process the text. Check your API key.",
+          description: error.message || "Could not process the text. Please check the server connection.",
           variant: "destructive",
         });
       } finally {
         setIsProcessing(false);
       }
     },
-    [apiKey]
+    []
   );
 
   return (

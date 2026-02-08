@@ -43,7 +43,7 @@ const Dashboard = () => {
         >
           <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">
               The Orbit — Knowledge Graph
             </span>
           </div>

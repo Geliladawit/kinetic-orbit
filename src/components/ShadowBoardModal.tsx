@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { simulateDecision, type ShadowSimulationResult } from "@/services/shadowBoard";
-import { useKnowledge } from "@/contexts/KnowledgeContext";
 import { graphNodes as mockNodes, graphLinks as mockLinks } from "@/data/mockData";
 import type { GraphNode, GraphLink } from "@/data/mockData";
 import { toast } from "@/hooks/use-toast";
@@ -33,49 +32,20 @@ export function ShadowBoardModal({ onSimulationResult, onClear }: ShadowBoardMod
   const [hypothesis, setHypothesis] = useState("");
   const [isSimulating, setIsSimulating] = useState(false);
   const [result, setResult] = useState<ShadowSimulationResult | null>(null);
-  const { nodes: knowledgeNodes, edges: knowledgeEdges, apiKey } = useKnowledge();
 
   const handleSimulate = async () => {
     if (!hypothesis.trim()) return;
-
-    if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please set your OpenAI API key in Settings first.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsSimulating(true);
     setResult(null);
 
     try {
-      // Merge mock + extracted nodes for full graph context
-      const convertedNodes: GraphNode[] = knowledgeNodes.map((kn) => ({
-        id: kn.id,
-        name: kn.label,
-        type: kn.type.toLowerCase() as "project" | "person" | "decision",
-        group: "extracted",
-        val: kn.type === "Project" ? 20 : kn.type === "Person" ? 14 : 8,
-        description: kn.metadata?.context || kn.metadata?.role || `Extracted ${kn.type}`,
-      }));
+      // Use mock data for now since we removed useKnowledge
+      // In a real implementation, you'd get this from the knowledge context
+      const allNodes = mockNodes;
+      const allLinks = mockLinks;
 
-      const allNodes = [...mockNodes, ...convertedNodes];
-      const nodeIds = new Set(allNodes.map((n) => n.id));
-
-      const convertedLinks: GraphLink[] = knowledgeEdges
-        .filter((ke) => nodeIds.has(ke.source_id) && nodeIds.has(ke.target_id))
-        .map((ke) => ({
-          source: ke.source_id,
-          target: ke.target_id,
-          strength: 0.7,
-          label: ke.relation_type,
-        }));
-
-      const allLinks = [...mockLinks, ...convertedLinks];
-
-      const simResult = await simulateDecision(hypothesis, allNodes, allLinks, apiKey);
+      const simResult = await simulateDecision(hypothesis, allNodes, allLinks);
       setResult(simResult);
 
       // Highlight affected nodes on the graph
@@ -89,7 +59,7 @@ export function ShadowBoardModal({ onSimulationResult, onClear }: ShadowBoardMod
       console.error("Shadow simulation failed:", error);
       toast({
         title: "Simulation Failed",
-        description: error.message || "Could not run simulation. Check your API key.",
+        description: error.message || "Could not run simulation. Please check the server connection.",
         variant: "destructive",
       });
     } finally {

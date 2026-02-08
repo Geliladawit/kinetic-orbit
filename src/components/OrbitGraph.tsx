@@ -267,10 +267,11 @@ export function OrbitGraph({ shadowBrokenIds, shadowOrphanedIds }: OrbitGraphPro
           animate={{ opacity: 1, scale: 1 }}
           className="absolute pointer-events-none z-50 glass-card rounded-lg px-3 py-2 max-w-[200px]"
           style={{
-            left: "50%",
-            top: 16,
+            position: "absolute",
+            left: tooltipPos.x,
+            top: tooltipPos.y,
             transform: "translateX(-50%)",
-          }}
+          } as React.CSSProperties}
         >
           <div className="flex items-center gap-2 mb-1">
             <div
@@ -279,8 +280,8 @@ export function OrbitGraph({ shadowBrokenIds, shadowOrphanedIds }: OrbitGraphPro
             />
             <span className="text-sm font-medium text-foreground">{hoveredNode.name}</span>
           </div>
-          <p className="text-xs text-muted-foreground">{hoveredNode.description}</p>
-          <p className="text-xs text-muted-foreground capitalize mt-1">
+          <p className="text-xs text-slate-400">{hoveredNode.description}</p>
+          <p className="text-xs text-slate-400 capitalize mt-1">
             {hoveredNode.type} · {hoveredNode.group}
           </p>
         </motion.div>
@@ -293,7 +294,7 @@ export function OrbitGraph({ shadowBrokenIds, shadowOrphanedIds }: OrbitGraphPro
           { type: "person", label: "Person", shape: "●" },
           { type: "decision", label: "Decision", shape: "◆" },
         ].map((item) => (
-          <div key={item.type} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div key={item.type} className="flex items-center gap-1.5 text-xs text-slate-400">
             <span style={{ color: NODE_COLORS[item.type] }}>{item.shape}</span>
             <span>{item.label}</span>
           </div>

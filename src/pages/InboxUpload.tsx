@@ -96,7 +96,7 @@ const InboxUpload = () => {
                 className={`relative flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   activeTab === tab.id
                     ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-slate-400 hover:text-foreground"
                 }`}
               >
                 <tab.icon className="w-3.5 h-3.5" />
@@ -196,13 +196,13 @@ const InboxUpload = () => {
                       >
                         <Upload
                           className={`w-10 h-10 mx-auto mb-4 ${
-                            dragOver ? "text-primary" : "text-muted-foreground"
+                            dragOver ? "text-primary" : "text-slate-400"
                           }`}
                         />
                         <p className="text-sm font-medium text-foreground">
                           Drop meeting transcript here
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           Supports .txt, .md, .csv
                         </p>
                         <button

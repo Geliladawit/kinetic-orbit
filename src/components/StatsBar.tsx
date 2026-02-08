@@ -20,7 +20,7 @@ function StatCard({ title, value, trend, icon, accentClass }: StatCardProps) {
       className="glass-card rounded-xl p-4 flex-1 min-w-[180px]"
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
           {title}
         </span>
         <div className={accentClass}>{icon}</div>
