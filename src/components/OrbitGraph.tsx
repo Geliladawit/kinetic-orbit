@@ -24,7 +24,12 @@ const GROUP_COLORS: Record<string, string> = {
   extracted: "#1a1a1a",
 };
 
-export function OrbitGraph() {
+interface OrbitGraphProps {
+  shadowBrokenIds?: Set<string>;
+  shadowOrphanedIds?: Set<string>;
+}
+
+export function OrbitGraph({ shadowBrokenIds, shadowOrphanedIds }: OrbitGraphProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -96,6 +101,9 @@ export function OrbitGraph() {
       const size = Math.sqrt(val) * 2;
       const color = NODE_COLORS[type] || "#00e5ff";
       const isNew = newNodeIds.has(id);
+      const isBroken = shadowBrokenIds?.has(id) ?? false;
+      const isOrphaned = shadowOrphanedIds?.has(id) ?? false;
+      const isShadowed = isBroken || isOrphaned;
 
       // Pulse animation for new nodes
       if (isNew) {
@@ -112,10 +120,27 @@ export function OrbitGraph() {
         ctx.fill();
       }
 
+      // Shadow Board: broken/orphaned pulse
+      if (isShadowed) {
+        const t = (Date.now() % 1200) / 1200;
+        const pulseSize = size * (2.5 + Math.sin(t * Math.PI * 2) * 1.5);
+        const shadowColor = isBroken ? "#dc2626" : "#f59e0b";
+        const pulseAlpha = 0.4 + Math.sin(t * Math.PI * 2) * 0.3;
+
+        const shadowGradient = ctx.createRadialGradient(x, y, 0, x, y, pulseSize);
+        shadowGradient.addColorStop(0, shadowColor + Math.round(pulseAlpha * 255).toString(16).padStart(2, "0"));
+        shadowGradient.addColorStop(1, shadowColor + "00");
+        ctx.beginPath();
+        ctx.arc(x, y, pulseSize, 0, 2 * Math.PI);
+        ctx.fillStyle = shadowGradient;
+        ctx.fill();
+      }
+
       // Outer glow
+      const glowColor = isBroken ? "#dc2626" : isOrphaned ? "#f59e0b" : color;
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2.5);
-      gradient.addColorStop(0, color + "40");
-      gradient.addColorStop(1, color + "00");
+      gradient.addColorStop(0, glowColor + "40");
+      gradient.addColorStop(1, glowColor + "00");
       ctx.beginPath();
       ctx.arc(x, y, size * 2.5, 0, 2 * Math.PI);
       ctx.fillStyle = gradient;
@@ -142,10 +167,11 @@ export function OrbitGraph() {
         ctx.arc(x, y, size, 0, 2 * Math.PI);
       }
 
-      ctx.fillStyle = isNew ? color + "60" : color + "30";
+      const fillColor = isBroken ? "#dc2626" : isOrphaned ? "#f59e0b" : color;
+      ctx.fillStyle = isShadowed ? fillColor + "50" : isNew ? color + "60" : color + "30";
       ctx.fill();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = isNew ? 2.5 : 1.5;
+      ctx.strokeStyle = isShadowed ? fillColor : color;
+      ctx.lineWidth = isShadowed ? 3 : isNew ? 2.5 : 1.5;
       ctx.stroke();
 
       // Inner dot
@@ -161,7 +187,7 @@ export function OrbitGraph() {
       ctx.fillStyle = isNew ? "#ffffff" : "#e0e8f0";
       ctx.fillText(name, x, y + size + 4);
     },
-    [newNodeIds]
+    [newNodeIds, shadowBrokenIds, shadowOrphanedIds]
   );
 
   const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D) => {
