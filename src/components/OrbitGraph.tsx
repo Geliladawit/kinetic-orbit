@@ -43,6 +43,7 @@ export function OrbitGraph() {
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D) => {
     const { x, y, type, name, val } = node as GraphNode & { x: number; y: number };
+    if (x == null || y == null || !isFinite(x) || !isFinite(y)) return;
     const size = Math.sqrt(val) * 2;
     const color = NODE_COLORS[type] || "#00e5ff";
 
@@ -103,6 +104,7 @@ export function OrbitGraph() {
     const start = link.source;
     const end = link.target;
     if (!start || !end || typeof start === "string" || typeof end === "string") return;
+    if (!isFinite(start.x) || !isFinite(start.y) || !isFinite(end.x) || !isFinite(end.y)) return;
 
     const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
     const sourceColor = GROUP_COLORS[start.group] || "#00e5ff";
