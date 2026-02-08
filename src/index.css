@@ -6,54 +6,54 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 97%;
+    --card-foreground: 0 0% 5%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
 
     --primary: 151 82% 33%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 5%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 0 0% 16%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
     --ring: 151 82% 33%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 0 0% 5%;
     --sidebar-primary: 151 82% 33%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 16%;
+    --sidebar-accent: 0 0% 93%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 0 0% 88%;
     --sidebar-ring: 151 82% 33%;
 
     /* Custom KINETIC tokens */
-    --cyan-glow: 0 0% 100%;
-    --amber-glow: 0 0% 70%;
-    --glass-bg: 0 0% 6% / 0.6;
-    --glass-border: 0 0% 20% / 0.3;
-    --glass-shadow: 0 0% 100% / 0.05;
-    --node-project: 0 0% 100%;
-    --node-people: 0 0% 70%;
-    --node-decision: 0 0% 50%;
+    --cyan-glow: 0 0% 20%;
+    --amber-glow: 0 0% 35%;
+    --glass-bg: 0 0% 97% / 0.6;
+    --glass-border: 0 0% 80% / 0.3;
+    --glass-shadow: 0 0% 0% / 0.05;
+    --node-project: 0 0% 10%;
+    --node-people: 0 0% 35%;
+    --node-decision: 0 0% 55%;
     --success: 151 82% 33%;
     --success-foreground: 0 0% 100%;
   }
