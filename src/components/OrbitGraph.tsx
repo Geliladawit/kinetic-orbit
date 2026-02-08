@@ -184,7 +184,7 @@ export function OrbitGraph({ shadowBrokenIds, shadowOrphanedIds }: OrbitGraphPro
       ctx.font = `${type === "project" ? "bold " : ""}${type === "decision" ? 8 : 9}px Inter, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillStyle = isNew ? "#ffffff" : "#e0e8f0";
+      ctx.fillStyle = "#000000";
       ctx.fillText(name, x, y + size + 4);
     },
     [newNodeIds, shadowBrokenIds, shadowOrphanedIds]
