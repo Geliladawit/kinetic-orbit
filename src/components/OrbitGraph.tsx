@@ -6,23 +6,22 @@ import { motion } from "framer-motion";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
 
 const NODE_COLORS: Record<string, string> = {
-  project: "#00e5ff",
-  person: "#b366ff",
-  decision: "#ffab00",
-  // Map DB types to same colors
-  Project: "#00e5ff",
-  Person: "#b366ff",
-  Decision: "#ffab00",
+  project: "#ffffff",
+  person: "#b0b0b0",
+  decision: "#808080",
+  Project: "#ffffff",
+  Person: "#b0b0b0",
+  Decision: "#808080",
 };
 
 const GROUP_COLORS: Record<string, string> = {
-  engineering: "#00e5ff",
-  marketing: "#ff6b9d",
-  product: "#b366ff",
-  leadership: "#ffab00",
-  design: "#66ffcc",
-  sales: "#ff8a65",
-  extracted: "#00e5ff",
+  engineering: "#ffffff",
+  marketing: "#b0b0b0",
+  product: "#d0d0d0",
+  leadership: "#808080",
+  design: "#e0e0e0",
+  sales: "#a0a0a0",
+  extracted: "#ffffff",
 };
 
 export function OrbitGraph() {
@@ -210,7 +209,7 @@ export function OrbitGraph() {
         nodeRelSize={6}
         linkDirectionalParticles={2}
         linkDirectionalParticleWidth={1.5}
-        linkDirectionalParticleColor={() => "#00e5ff40"}
+        linkDirectionalParticleColor={() => "#ffffff40"}
         backgroundColor="rgba(0,0,0,0)"
         onNodeHover={handleNodeHover}
         d3AlphaDecay={0.02}
