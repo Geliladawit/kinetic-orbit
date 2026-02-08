@@ -1,13 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import { graphNodes, graphLinks } from "@/data/mockData";
+import { graphNodes as mockNodes, graphLinks as mockLinks } from "@/data/mockData";
 import type { GraphNode } from "@/data/mockData";
 import { motion } from "framer-motion";
+import { useKnowledge } from "@/contexts/KnowledgeContext";
 
 const NODE_COLORS: Record<string, string> = {
   project: "#00e5ff",
   person: "#b366ff",
   decision: "#ffab00",
+  // Map DB types to same colors
+  Project: "#00e5ff",
+  Person: "#b366ff",
+  Decision: "#ffab00",
 };
 
 const GROUP_COLORS: Record<string, string> = {
@@ -17,6 +22,7 @@ const GROUP_COLORS: Record<string, string> = {
   leadership: "#ffab00",
   design: "#66ffcc",
   sales: "#ff8a65",
+  extracted: "#00e5ff",
 };
 
 export function OrbitGraph() {
@@ -25,6 +31,19 @@ export function OrbitGraph() {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const { nodes: knowledgeNodes, edges: knowledgeEdges, newNodeIds } = useKnowledge();
+
+  // Track animation time for pulsing
+  const animTimeRef = useRef(0);
+  useEffect(() => {
+    let frame: number;
+    const tick = () => {
+      animTimeRef.current = Date.now();
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -41,64 +60,110 @@ export function OrbitGraph() {
     return () => observer.disconnect();
   }, []);
 
-  const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D) => {
-    const { x, y, type, name, val } = node as GraphNode & { x: number; y: number };
-    if (x == null || y == null || !isFinite(x) || !isFinite(y)) return;
-    const size = Math.sqrt(val) * 2;
-    const color = NODE_COLORS[type] || "#00e5ff";
+  // Merge mock data with extracted knowledge nodes/edges
+  const graphData = useMemo(() => {
+    const convertedNodes: GraphNode[] = knowledgeNodes.map((kn) => ({
+      id: kn.id,
+      name: kn.label,
+      type: kn.type.toLowerCase() as "project" | "person" | "decision",
+      group: "extracted",
+      val: kn.type === "Project" ? 20 : kn.type === "Person" ? 14 : 8,
+      description: kn.metadata?.context || kn.metadata?.role || `Extracted ${kn.type}`,
+    }));
 
-    // Outer glow
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2.5);
-    gradient.addColorStop(0, color + "40");
-    gradient.addColorStop(1, color + "00");
-    ctx.beginPath();
-    ctx.arc(x, y, size * 2.5, 0, 2 * Math.PI);
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    const allNodes = [...mockNodes.map((n) => ({ ...n })), ...convertedNodes];
 
-    // Main node
-    ctx.beginPath();
-    if (type === "project") {
-      // Hexagon for projects
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i - Math.PI / 6;
-        const px = x + size * Math.cos(angle);
-        const py = y + size * Math.sin(angle);
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+    // Build id set for edge validation
+    const nodeIds = new Set(allNodes.map((n) => n.id));
+
+    const convertedLinks = knowledgeEdges
+      .filter((ke) => nodeIds.has(ke.source_id) && nodeIds.has(ke.target_id))
+      .map((ke) => ({
+        source: ke.source_id,
+        target: ke.target_id,
+        strength: 0.7,
+        label: ke.relation_type,
+      }));
+
+    const allLinks = [...mockLinks.map((l) => ({ ...l })), ...convertedLinks];
+
+    return { nodes: allNodes, links: allLinks };
+  }, [knowledgeNodes, knowledgeEdges]);
+
+  const paintNode = useCallback(
+    (node: any, ctx: CanvasRenderingContext2D) => {
+      const { x, y, type, name, val, id } = node as GraphNode & { x: number; y: number };
+      if (x == null || y == null || !isFinite(x) || !isFinite(y)) return;
+      const size = Math.sqrt(val) * 2;
+      const color = NODE_COLORS[type] || "#00e5ff";
+      const isNew = newNodeIds.has(id);
+
+      // Pulse animation for new nodes
+      if (isNew) {
+        const t = (Date.now() % 1500) / 1500;
+        const pulseSize = size * (2.5 + Math.sin(t * Math.PI * 2) * 1.5);
+        const pulseAlpha = 0.3 + Math.sin(t * Math.PI * 2) * 0.2;
+
+        const pulseGradient = ctx.createRadialGradient(x, y, 0, x, y, pulseSize);
+        pulseGradient.addColorStop(0, color + Math.round(pulseAlpha * 255).toString(16).padStart(2, "0"));
+        pulseGradient.addColorStop(1, color + "00");
+        ctx.beginPath();
+        ctx.arc(x, y, pulseSize, 0, 2 * Math.PI);
+        ctx.fillStyle = pulseGradient;
+        ctx.fill();
       }
-      ctx.closePath();
-    } else if (type === "decision") {
-      // Diamond for decisions
-      ctx.moveTo(x, y - size);
-      ctx.lineTo(x + size, y);
-      ctx.lineTo(x, y + size);
-      ctx.lineTo(x - size, y);
-      ctx.closePath();
-    } else {
-      // Circle for people
-      ctx.arc(x, y, size, 0, 2 * Math.PI);
-    }
 
-    ctx.fillStyle = color + "30";
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+      // Outer glow
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2.5);
+      gradient.addColorStop(0, color + "40");
+      gradient.addColorStop(1, color + "00");
+      ctx.beginPath();
+      ctx.arc(x, y, size * 2.5, 0, 2 * Math.PI);
+      ctx.fillStyle = gradient;
+      ctx.fill();
 
-    // Inner dot
-    ctx.beginPath();
-    ctx.arc(x, y, 2, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
-    ctx.fill();
+      // Main node shape
+      ctx.beginPath();
+      if (type === "project") {
+        for (let i = 0; i < 6; i++) {
+          const angle = (Math.PI / 3) * i - Math.PI / 6;
+          const px = x + size * Math.cos(angle);
+          const py = y + size * Math.sin(angle);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+      } else if (type === "decision") {
+        ctx.moveTo(x, y - size);
+        ctx.lineTo(x + size, y);
+        ctx.lineTo(x, y + size);
+        ctx.lineTo(x - size, y);
+        ctx.closePath();
+      } else {
+        ctx.arc(x, y, size, 0, 2 * Math.PI);
+      }
 
-    // Label
-    ctx.font = `${type === "project" ? "bold " : ""}${type === "decision" ? 8 : 9}px Inter, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "#e0e8f0";
-    ctx.fillText(name, x, y + size + 4);
-  }, []);
+      ctx.fillStyle = isNew ? color + "60" : color + "30";
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isNew ? 2.5 : 1.5;
+      ctx.stroke();
+
+      // Inner dot
+      ctx.beginPath();
+      ctx.arc(x, y, isNew ? 3 : 2, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Label
+      ctx.font = `${type === "project" ? "bold " : ""}${type === "decision" ? 8 : 9}px Inter, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = isNew ? "#ffffff" : "#e0e8f0";
+      ctx.fillText(name, x, y + size + 4);
+    },
+    [newNodeIds]
+  );
 
   const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D) => {
     const start = link.source;
@@ -133,17 +198,13 @@ export function OrbitGraph() {
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[400px]">
-      {/* Grid background */}
       <div className="absolute inset-0 grid-bg opacity-30" />
 
       <ForceGraph2D
         ref={graphRef}
         width={dimensions.width}
         height={dimensions.height}
-        graphData={{
-          nodes: graphNodes.map((n) => ({ ...n })),
-          links: graphLinks.map((l) => ({ ...l })),
-        }}
+        graphData={graphData}
         nodeCanvasObject={paintNode}
         linkCanvasObject={paintLink}
         nodeRelSize={6}
@@ -158,6 +219,21 @@ export function OrbitGraph() {
         enableZoomInteraction={true}
         enablePanInteraction={true}
       />
+
+      {/* New nodes indicator */}
+      {newNodeIds.size > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          className="absolute top-4 right-4 z-10 glass-card rounded-lg px-3 py-2 flex items-center gap-2"
+        >
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-xs font-mono text-primary">
+            +{newNodeIds.size} new nodes pulsing
+          </span>
+        </motion.div>
+      )}
 
       {/* Tooltip */}
       {hoveredNode && (
