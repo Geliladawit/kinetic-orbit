@@ -174,8 +174,20 @@ export function KnowledgeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+const FALLBACK: KnowledgeContextValue = {
+  nodes: [],
+  edges: [],
+  truthLedger: [],
+  conflicts: [],
+  newNodeIds: new Set(),
+  isProcessing: false,
+  apiKey: "",
+  setApiKey: () => {},
+  processText: async () => {},
+  clearNewNodeHighlights: () => {},
+};
+
 export function useKnowledge() {
   const ctx = useContext(KnowledgeContext);
-  if (!ctx) throw new Error("useKnowledge must be used inside KnowledgeProvider");
-  return ctx;
+  return ctx ?? FALLBACK;
 }
