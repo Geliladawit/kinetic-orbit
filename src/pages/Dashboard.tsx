@@ -1,9 +1,26 @@
+import { useState, useCallback } from "react";
 import { StatsBar } from "@/components/StatsBar";
 import { OrbitGraph } from "@/components/OrbitGraph";
 import { LivePulseFeed } from "@/components/LivePulseFeed";
+import { ShadowBoardModal } from "@/components/ShadowBoardModal";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
+  const [shadowBrokenIds, setShadowBrokenIds] = useState<Set<string>>(new Set());
+  const [shadowOrphanedIds, setShadowOrphanedIds] = useState<Set<string>>(new Set());
+
+  const handleSimulationResult = useCallback((brokenIds: string[], orphanedIds: string[]) => {
+    setShadowBrokenIds(new Set(brokenIds));
+    setShadowOrphanedIds(new Set(orphanedIds));
+  }, []);
+
+  const handleClearShadow = useCallback(() => {
+    setShadowBrokenIds(new Set());
+    setShadowOrphanedIds(new Set());
+  }, []);
+
+  const hasShadow = shadowBrokenIds.size > 0 || shadowOrphanedIds.size > 0;
+
   return (
     <div className="flex flex-col h-[calc(100vh-60px)] overflow-hidden">
       {/* Stats */}
@@ -30,7 +47,39 @@ const Dashboard = () => {
               The Orbit — Knowledge Graph
             </span>
           </div>
-          <OrbitGraph />
+
+          {/* Shadow Board controls */}
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+            <ShadowBoardModal
+              onSimulationResult={handleSimulationResult}
+              onClear={handleClearShadow}
+            />
+          </div>
+
+          {/* Shadow mode indicator */}
+          {hasShadow && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-14 right-4 z-10 rounded-lg border border-border bg-background/90 px-3 py-2 flex items-center gap-2"
+            >
+              <div className="flex items-center gap-3 text-xs font-mono">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                  {shadowBrokenIds.size} broken
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  {shadowOrphanedIds.size} orphaned
+                </span>
+              </div>
+            </motion.div>
+          )}
+
+          <OrbitGraph
+            shadowBrokenIds={shadowBrokenIds}
+            shadowOrphanedIds={shadowOrphanedIds}
+          />
         </motion.div>
 
         {/* Live Pulse Sidebar */}
