@@ -43,12 +43,12 @@ function TruthRow({ entry }: { entry: TruthEntry }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-secondary/30 transition-colors"
       >
-        <div className="text-muted-foreground">
+        <div className="text-slate-400">
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
               {entry.category}
             </span>
             <span className="text-sm font-semibold text-foreground">{entry.key}</span>
@@ -56,11 +56,11 @@ function TruthRow({ entry }: { entry: TruthEntry }) {
           <p className="text-sm text-primary font-mono mt-1">{entry.value}</p>
         </div>
         <ConfidenceBadge score={entry.confidence} />
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
+        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
           <Clock className="w-3 h-3" />
           {entry.lastUpdated.toLocaleDateString()}
         </div>
-        <span className="text-xs text-muted-foreground">{entry.updatedBy}</span>
+        <span className="text-xs text-slate-400">{entry.updatedBy}</span>
       </button>
 
       <AnimatePresence>
@@ -76,7 +76,7 @@ function TruthRow({ entry }: { entry: TruthEntry }) {
               <div className="flex items-center gap-2 mb-3">
                 <GitCommit className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs font-semibold text-foreground">Commit History</span>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-slate-400">
                   {entry.history.length} versions
                 </span>
               </div>
@@ -93,7 +93,7 @@ function TruthRow({ entry }: { entry: TruthEntry }) {
                     />
                     <div className="flex-1">
                       <p className="text-xs font-mono text-foreground">{h.value}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                      <p className="text-[10px] text-slate-400 mt-0.5">
                         {h.author} · {h.date.toLocaleDateString()}
                       </p>
                     </div>
@@ -129,23 +129,23 @@ const TruthLedger = () => {
         >
           <div>
             <h2 className="text-lg font-bold text-foreground">The Truth Ledger</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5">
               Version-controlled organizational truths with confidence scoring
             </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="glass-card rounded-lg flex items-center gap-2 px-3 py-2">
-              <Search className="w-3.5 h-3.5 text-muted-foreground" />
+              <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search truths..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground w-48"
+                className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-slate-400 w-48"
               />
             </div>
             <button className="glass-card rounded-lg p-2 hover:bg-secondary/50 transition-colors">
-              <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
         </motion.div>

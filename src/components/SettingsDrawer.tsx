@@ -36,7 +36,7 @@ export function SettingsDrawer() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all">
+        <button className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-foreground hover:bg-secondary/50 transition-all">
           <Settings className="w-3.5 h-3.5" />
           <span>Settings</span>
           {serverStatus === 'offline' && (
@@ -71,7 +71,7 @@ export function SettingsDrawer() {
                       : "bg-destructive"
                   }`}
                 />
-                <span className="text-xs text-muted-foreground font-mono">
+                <span className="text-xs text-slate-400 font-mono">
                   {serverStatus === 'online' 
                     ? "BRAIN ONLINE — GPT-4o" 
                     : serverStatus === 'checking'
@@ -87,13 +87,13 @@ export function SettingsDrawer() {
                 Refresh
               </button>
             </div>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[10px] text-slate-400">
               Server: http://localhost:3001
             </p>
           </div>
 
           {/* Info */}
-          <div className="text-[10px] text-muted-foreground space-y-1">
+          <div className="text-[10px] text-slate-400 space-y-1">
             <p>🔒 API key is securely stored on the backend server.</p>
             <p>🧠 The Extractor uses GPT-4o to parse transcripts.</p>
             <p>⚖️ The Auditor checks for truth conflicts automatically.</p>

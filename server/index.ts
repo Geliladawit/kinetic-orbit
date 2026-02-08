@@ -14,22 +14,54 @@ app.use(cors({
 }));
 app.use(express.json());
 
+const GROQ_BASE_URL = process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1';
+const GROQ_EXTRACT_MODEL = process.env.GROQ_EXTRACT_MODEL || 'openai/gpt-oss-20b';
+const GROQ_SHADOW_MODEL = process.env.GROQ_SHADOW_MODEL || 'openai/gpt-oss-20b';
+
+async function chatCompletions(params: {
+  model: string;
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+  temperature: number;
+  max_tokens: number;
+}): Promise<string> {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error('Groq API key not configured');
+  }
+
+  const response = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `Groq API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('No content returned from Groq');
+  }
+  return content;
+}
+
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: express.Request, res: express.Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// OpenAI proxy endpoint
-app.post('/api/extract', async (req, res) => {
+// Groq (OpenAI-compatible) proxy endpoint
+app.post('/api/extract', async (req: express.Request, res: express.Response) => {
   try {
     const { text } = req.body;
     
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
     }
 
     const SYSTEM_PROMPT = `You are an organizational intelligence extractor for a knowledge graph engine called KINETIC. Analyze the provided text (meeting transcript, email, or communication) and extract structured information.
@@ -58,39 +90,18 @@ Rules:
 - Be thorough but avoid duplicates
 - Do NOT wrap the JSON in markdown code fences — return raw JSON only`;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `Analyze this text and extract organizational entities and relationships:\n\n${text}`,
-          },
-        ],
-        temperature: 0.2,
-        max_tokens: 4000,
-      }),
+    const content = await chatCompletions({
+      model: GROQ_EXTRACT_MODEL,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `Analyze this text and extract organizational entities and relationships:\n\n${text}`,
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 4000,
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(
-        err?.error?.message || `OpenAI API error: ${response.status}`
-      );
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("No content returned from OpenAI");
-    }
 
     // Parse the JSON response, stripping any markdown fences
     const cleaned = content.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
@@ -111,16 +122,12 @@ Rules:
 });
 
 // Shadow Board simulation endpoint
-app.post('/api/simulate', async (req, res) => {
+app.post('/api/simulate', async (req: express.Request, res: express.Response) => {
   try {
     const { hypothetical, nodes, edges } = req.body;
     
     if (!hypothetical || !nodes || !edges) {
       return res.status(400).json({ error: 'Hypothetical decision, nodes, and edges are required' });
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
     }
 
     const SHADOW_PROMPT = `You are SHADOW BOARD — a strategic simulation engine for an organizational knowledge graph called KINETIC. You analyze hypothetical decisions and determine their impact on organizational graph.
@@ -176,39 +183,18 @@ Rules:
       2
     );
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: SHADOW_PROMPT },
-          {
-            role: "user",
-            content: `CURRENT KNOWLEDGE GRAPH:\n${graphContext}\n\nHYPOTHETICAL DECISION:\n"${hypothetical}"\n\nAnalyze blast radius of this decision on graph.`,
-          },
-        ],
-        temperature: 0.3,
-        max_tokens: 4000,
-      }),
+    const content = await chatCompletions({
+      model: GROQ_SHADOW_MODEL,
+      messages: [
+        { role: 'system', content: SHADOW_PROMPT },
+        {
+          role: 'user',
+          content: `CURRENT KNOWLEDGE GRAPH:\n${graphContext}\n\nHYPOTHETICAL DECISION:\n"${hypothetical}"\n\nAnalyze blast radius of this decision on graph.`,
+        },
+      ],
+      temperature: 0.3,
+      max_tokens: 4000,
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(
-        err?.error?.message || `OpenAI API error: ${response.status}`
-      );
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("No content returned from OpenAI");
-    }
 
     const cleaned = content.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(cleaned);

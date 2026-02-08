@@ -12,8 +12,8 @@ npm install
 # Copy the example environment file
 cp .env.example .env
 
-# Edit .env and add your OpenAI API key
-OPENAI_API_KEY=your_actual_openai_api_key_here
+# Edit .env and add your Groq API key
+GROQ_API_KEY=your_actual_groq_api_key_here
 ```
 
 ### 3. Start the Application
@@ -39,7 +39,7 @@ npm run dev
 
 ## 🔒 Security Features
 
-- ✅ **API Key Protection**: Your OpenAI API key is stored server-side only
+- ✅ **API Key Protection**: Your Groq API key is stored server-side only
 - ✅ **No Client Exposure**: API key never reaches the browser
 - ✅ **CORS Protection**: Only your frontend can access the API
 - ✅ **Error Handling**: Secure error responses without sensitive data
@@ -79,7 +79,10 @@ Health check endpoint.
 ## 🔧 Development
 
 ### Environment Variables
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
+- `GROQ_API_KEY`: Your Groq API key (required)
+- `GROQ_BASE_URL`: Groq OpenAI-compatible base URL (optional)
+- `GROQ_EXTRACT_MODEL`: Groq model for extraction (optional)
+- `GROQ_SHADOW_MODEL`: Groq model for shadow simulation (optional)
 - `PORT`: Backend server port (default: 3001)
 - `FRONTEND_URL`: Frontend URL for CORS (default: http://localhost:5173)
 - `NODE_ENV`: Environment mode (development/production)
@@ -109,7 +112,7 @@ Health check endpoint.
 ### Common Issues:
 
 **"API key not configured"**
-- Check that your `.env` file has the correct `OPENAI_API_KEY`
+- Check that your `.env` file has the correct `GROQ_API_KEY`
 - Ensure the server is restarted after changing environment variables
 
 **"CORS error"**

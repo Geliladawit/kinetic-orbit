@@ -32,7 +32,7 @@ function ImpactBar({ value }: { value: number }) {
 
   return (
     <div className="flex items-center gap-2 mt-2">
-      <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
         Impact
       </span>
       <div className="flex-1 h-1 rounded-full bg-secondary overflow-hidden">
@@ -43,7 +43,7 @@ function ImpactBar({ value }: { value: number }) {
           transition={{ duration: 0.8, ease: "easeOut" }}
         />
       </div>
-      <span className="text-[10px] font-mono text-muted-foreground">{value}%</span>
+      <span className="text-[10px] font-mono text-slate-400">{value}%</span>
     </div>
   );
 }
@@ -68,18 +68,18 @@ function AlertCard({ alert, index }: { alert: PulseAlert; index: number }) {
             <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {alert.title}
             </h4>
-            <span className="text-[10px] text-muted-foreground whitespace-nowrap font-mono">
+            <span className="text-[10px] text-slate-400 whitespace-nowrap font-mono">
               {timeAgo(alert.timestamp)}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed line-clamp-2">
+          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
             {alert.description}
           </p>
           <div className="flex gap-1.5 mt-2 flex-wrap">
             {alert.sources.map((source) => (
               <span
                 key={source}
-                className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-secondary text-muted-foreground"
+                className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-secondary text-slate-400"
               >
                 {source}
               </span>
